@@ -84,20 +84,18 @@ export const useOAuth2 = <TData = TAuthTokenPayload>(props: TOauth2Props<TData>)
 				} else {
 					let payload = message?.data?.payload;
 					if (responseType === 'code' && exchangeCodeForTokenServerURL) {
-						const response = await fetch(
-							formatExchangeCodeForTokenServerURL(
-								exchangeCodeForTokenServerURL,
-								clientId,
-								payload?.code,
-								redirectUri,
-								state
-							),
-							{
-								method:
-									exchangeCodeForTokenMethod ||
-									DEFAULT_EXCHANGE_CODE_FOR_TOKEN_METHOD,
-							}
-						);
+						const response = await fetch(exchangeCodeForTokenServerURL, {
+							headers: {
+								'Content-Type': 'application/x-www-form-urlencoded'
+							},
+							method: exchangeCodeForTokenMethod || DEFAULT_EXCHANGE_CODE_FOR_TOKEN_METHOD,
+							body: new URLSearchParams({
+								client_id: clientId,
+								grant_type: 'authorization_code',
+								code: payload?.code,
+								redirect_uri: redirectUri
+							})
+						});
 						payload = await response.json();
 					}
 					setUI({
